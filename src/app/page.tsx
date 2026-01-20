@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 // GANTI LINK AFFILIATE SHORTENER KAMU DI SINI
-const AFFILIATE_LINK = "https://ouo.io/ref/namakamu"; 
+const AFFILIATE_LINK = "https://safelinku.com/ref/cewekon3"; 
 
 export default function Home() {
   const [url, setUrl] = useState('');
