@@ -48,4 +48,4 @@ export async function GET(
   // Kalau bukan target offer, masuk ke Link Asli (Youtube, dll)
   // Status 307 penting agar browser cek ulang setiap saat (jangan dicache permanen)
   return NextResponse.redirect(entry.url, { status: 307 });
-}
+      }
