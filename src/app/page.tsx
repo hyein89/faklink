@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 
+// GANTI LINK AFFILIATE SHORTENER KAMU DI SINI
+const AFFILIATE_LINK = "https://ouo.io/ref/namakamu"; 
+
 export default function Home() {
   const [url, setUrl] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
@@ -12,39 +15,41 @@ export default function Home() {
 
     setStatus('loading');
 
-    // Simulasi loading 1.5 detik, lalu muncul error
+    // Simulasi loading 1.5 detik, lalu muncul notif error + tombol register
     setTimeout(() => {
       setStatus('error');
     }, 1500);
   };
 
+  const openAffiliate = () => {
+    window.open(AFFILIATE_LINK, '_blank');
+  };
+
   return (
     <div style={styles.container}>
-      {/* Kotak Utama (Card) */}
+      
+      {/* Container Kotak Utama */}
       <div style={styles.card}>
         
-        {/* Judul & Deskripsi */}
+        {/* Header Title */}
         <div style={styles.header}>
+          <div style={styles.badge}>PRIVATE SYSTEM</div>
           <h1 style={styles.title}>URL SHORTENER</h1>
-          <p style={styles.subtitle}>Private Link Management System</p>
         </div>
 
-        {/* Form Input */}
+        {/* Input Area */}
         <form onSubmit={handleShorten} style={styles.form}>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Paste Long URL</label>
-            <input
-              type="text"
-              placeholder="https://example.com/very-long-url..."
-              value={url}
-              onChange={(e) => {
-                setUrl(e.target.value);
-                if (status === 'error') setStatus('idle'); // Reset error kalau ngetik ulang
-              }}
-              style={styles.input}
-            />
-          </div>
-
+          <input
+            type="text"
+            placeholder="Paste Link Here..."
+            value={url}
+            onChange={(e) => {
+              setUrl(e.target.value);
+              if (status === 'error') setStatus('idle');
+            }}
+            style={styles.input}
+          />
+          
           <button 
             type="submit" 
             style={status === 'loading' ? styles.buttonLoading : styles.button}
@@ -54,30 +59,37 @@ export default function Home() {
           </button>
         </form>
 
-        {/* Notifikasi Error (Muncul Hanya Saat Diperlukan) */}
+        {/* Notifikasi Error + Tombol Register Affiliate */}
         {status === 'error' && (
-          <div style={styles.alertBox}>
-            <span style={styles.alertIcon}>🚫</span>
-            <div>
-              <strong style={{display: 'block', marginBottom: '4px'}}>Access Denied</strong>
-              <span style={{fontSize: '12px', opacity: 0.8}}>
-                Public registration is currently closed. Only authorized IPs can create new links.
-              </span>
+          <div style={styles.errorBox}>
+            <div style={styles.errorHeader}>
+              <span style={{fontSize: '20px'}}>🚫</span>
+              <strong>ACCESS DENIED</strong>
             </div>
+            
+            <p style={styles.errorText}>
+              Public registration is closed. You need a premium account to create links.
+            </p>
+
+            {/* Tombol Affiliate */}
+            <button onClick={openAffiliate} style={styles.registerButton}>
+              REGISTER ACCESS &rarr;
+            </button>
           </div>
         )}
 
       </div>
-      
-      {/* Footer Kecil */}
+
+      {/* Footer */}
       <div style={styles.footer}>
-        &copy; 2024 SecureLink System. v2.1.0
+        &copy; 2024 SecureLink. System v2.1
       </div>
+
     </div>
   );
 }
 
-// STYLING: Tema Gelap, Tajam (No Radius), Rapi
+// STYLING RAPI & RESPONSIF
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
     minHeight: '100vh',
@@ -86,74 +98,70 @@ const styles: { [key: string]: React.CSSProperties } = {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#050505', // Hitam pekat
+    backgroundColor: '#000000',
     color: '#ffffff',
-    fontFamily: 'Courier New, Courier, monospace', // Font ala hacker/dev
-    padding: '20px',
+    fontFamily: 'Courier New, Courier, monospace',
+    padding: '20px', // Memberi jarak aman dari pinggir layar HP
     boxSizing: 'border-box',
   },
   card: {
     width: '100%',
-    maxWidth: '420px', // Membatasi lebar agar tidak melebar kemana-mana
-    backgroundColor: '#111',
+    maxWidth: '400px', // Lebar maksimal di desktop
+    backgroundColor: '#0a0a0a', // Sedikit lebih terang dari background utama
     border: '1px solid #333',
-    padding: '40px 30px',
+    padding: '30px 25px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '25px',
-    boxShadow: '0 20px 50px rgba(0,0,0,0.5)', // Shadow biar elegan
+    gap: '20px',
+    boxShadow: '0 10px 30px rgba(0,0,0,0.8)',
+    position: 'relative',
+    boxSizing: 'border-box',
   },
   header: {
     textAlign: 'center',
-    borderBottom: '1px solid #222',
-    paddingBottom: '20px',
+    marginBottom: '10px',
+  },
+  badge: {
+    fontSize: '10px',
+    backgroundColor: '#222',
+    color: '#888',
+    padding: '4px 8px',
+    border: '1px solid #333',
+    display: 'inline-block',
+    marginBottom: '10px',
+    letterSpacing: '1px',
   },
   title: {
     margin: 0,
-    fontSize: '24px',
+    fontSize: '22px',
     fontWeight: '700',
-    letterSpacing: '2px',
+    letterSpacing: '3px',
     color: '#fff',
-  },
-  subtitle: {
-    margin: '8px 0 0 0',
-    fontSize: '12px',
-    color: '#666',
-    textTransform: 'uppercase',
-    letterSpacing: '1px',
+    borderBottom: '2px solid #fff', // Garis bawah judul
+    display: 'inline-block',
+    paddingBottom: '5px',
   },
   form: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '20px',
-  },
-  inputGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
-    textAlign: 'left',
-  },
-  label: {
-    fontSize: '12px',
-    color: '#888',
-    fontWeight: 'bold',
+    gap: '15px',
   },
   input: {
     width: '100%',
     padding: '15px',
-    backgroundColor: '#000',
-    border: '1px solid #333',
+    backgroundColor: '#111',
+    border: '1px solid #444',
     color: '#fff',
     fontSize: '14px',
     outline: 'none',
     boxSizing: 'border-box',
     fontFamily: 'inherit',
-    transition: 'border-color 0.3s',
+    textAlign: 'center', // Text di tengah biar rapi
   },
   button: {
     width: '100%',
-    padding: '16px',
-    backgroundColor: '#fff', // Tombol Putih Kontras
+    padding: '15px',
+    backgroundColor: '#fff',
     color: '#000',
     border: 'none',
     fontSize: '14px',
@@ -161,40 +169,56 @@ const styles: { [key: string]: React.CSSProperties } = {
     cursor: 'pointer',
     textTransform: 'uppercase',
     letterSpacing: '1px',
-    transition: 'background 0.3s',
+    transition: '0.2s',
   },
   buttonLoading: {
     width: '100%',
-    padding: '16px',
+    padding: '15px',
     backgroundColor: '#333',
     color: '#888',
     border: 'none',
     fontSize: '14px',
     fontWeight: '900',
     cursor: 'not-allowed',
+  },
+  // Style untuk Kotak Error & Tombol Register
+  errorBox: {
+    marginTop: '10px',
+    backgroundColor: 'rgba(255, 50, 50, 0.05)', // Merah sangat transparan
+    border: '1px solid #8B0000', // Border merah gelap
+    padding: '20px',
+    textAlign: 'center',
+    animation: 'fadeIn 0.5s',
+  },
+  errorHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '10px',
+    color: '#ff5555',
+    marginBottom: '10px',
+  },
+  errorText: {
+    fontSize: '12px',
+    color: '#aaa',
+    marginBottom: '15px',
+    lineHeight: '1.4',
+  },
+  registerButton: {
+    width: '100%',
+    padding: '12px',
+    backgroundColor: '#8B0000', // Merah gelap
+    color: '#fff',
+    border: '1px solid #ff5555',
+    fontSize: '12px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
     textTransform: 'uppercase',
     letterSpacing: '1px',
   },
-  alertBox: {
-    backgroundColor: 'rgba(255, 0, 0, 0.1)',
-    border: '1px solid #8B0000',
-    padding: '15px',
-    color: '#ff6b6b',
-    fontSize: '13px',
-    display: 'flex',
-    alignItems: 'start',
-    gap: '12px',
-    textAlign: 'left',
-    animation: 'fadeIn 0.3s ease-in',
-  },
-  alertIcon: {
-    fontSize: '18px',
-  },
   footer: {
-    marginTop: '40px',
-    color: '#333',
+    marginTop: '30px',
+    color: '#444',
     fontSize: '10px',
-    textTransform: 'uppercase',
-    letterSpacing: '2px',
   },
 };
