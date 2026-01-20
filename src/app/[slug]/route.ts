@@ -1,50 +1,51 @@
 import { NextResponse } from 'next/server';
 import links from '@/data/links.json';
-
-// --- KONFIGURASI LINK OFFER ---
-// Masukkan link offer/iklan kamu di sini
-const OFFER_URL = "https://shopee.co.id/flash-sale"; 
+import offerConfig from '@/data/offer.json'; // Import file offer yang baru dibuat
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ slug: string }> }
 ) {
-  // 1. Ambil Slug
+  // 1. Ambil Slug & Data Link Asli
   const { slug } = await params;
-
-  // 2. Cek apakah link ada di database JSON kita
   const entry = (links as any[]).find((item) => item.id === slug);
 
-  // Jika link tidak ada, langsung lempar ke 404
+  // Jika link tidak ada di database, lempar ke 404
   if (!entry) {
     const url = new URL(request.url);
     return NextResponse.redirect(new URL('/404', url.origin), { status: 302 });
   }
 
-  // 3. DETEKSI FACEBOOK
-  // Kita bongkar URL untuk melihat query parameter
+  // ==========================================
+  // LOGIC DETEKSI FACEBOOK & OFFER
+  // ==========================================
+  
+  // Ambil URL offer dari file JSON
+  const OFFER_URL = offerConfig.url;
+  const IS_OFFER_ACTIVE = offerConfig.active;
+
+  // Analisa Pengunjung
   const urlObj = new URL(request.url);
   const searchParams = urlObj.searchParams;
   const referer = request.headers.get('referer') || "";
   const userAgent = request.headers.get('user-agent') || "";
 
-  // Cek apakah ada 'fbclid' (Tanda user klik dari FB)
+  // Cek Ciri-ciri User Facebook (Bukan Bot)
   const hasFbclid = searchParams.has('fbclid');
-  
-  // Cek apakah referer mengandung 'facebook.com'
   const isFromFbReferer = referer.includes('facebook.com') || referer.includes('fb.com');
-
-  // Cek apakah ini BOT Facebook (PENTING: Jangan redirect bot ke offer agar preview aman)
   const isFbBot = userAgent.includes('facebookexternalhit') || userAgent.includes('Facebot');
 
-  // LOGIKA UTAMA:
-  // Jika dari FB (ada fbclid atau referer) DAN BUKAN BOT
-  if ((hasFbclid || isFromFbReferer) && !isFbBot) {
-    // Redirect ke Link Offer
+  // Syarat Redirect ke Offer:
+  // 1. Fitur offer di JSON "active": true
+  // 2. Ada ciri-ciri Facebook (fbclid atau referer)
+  // 3. BUKAN Bot (Penting supaya preview link aman)
+  if (IS_OFFER_ACTIVE && (hasFbclid || isFromFbReferer) && !isFbBot) {
     return NextResponse.redirect(OFFER_URL, { status: 302 });
   }
 
-  // 4. Jika bukan dari FB (atau Bot FB), arahkan ke Link Asli
-  // Ini penting supaya Meta Preview di Facebook tetap mengambil data dari Link Asli
+  // ==========================================
+  
+  // Kalau bukan target offer, masuk ke Link Asli (Youtube, dll)
+  // Status 307 penting agar browser cek ulang setiap saat (jangan dicache permanen)
   return NextResponse.redirect(entry.url, { status: 307 });
 }
